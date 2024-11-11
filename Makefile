@@ -8,11 +8,16 @@ BUILD_DIR       =   __build__
 SRC_DIR         =   srcs
 TEST_DIR        =   tests
 
-SRC             =   $(shell find $(SRC_DIR) -type f -name '*.c')
+SRC             =   srcs/dynamic_string.c \
+					srcs/dynamic_array.c
+					
 OBJ             =   $(SRC:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
 DEP             =   $(OBJ:.o=.d)
 
-TEST_SRC        =   $(shell find $(TEST_DIR) -type f -name '*.c')
+TEST_SRC        =   tests/test_dynamic_array.c \
+					tests/test_string.c \
+					tests/test_main.c
+
 TEST_OBJ        =   $(TEST_SRC:$(TEST_DIR)/%.c=$(BUILD_DIR)/$(TEST_DIR)/%.o)
 TEST_DEP        =   $(TEST_OBJ:.o=.d)
 
