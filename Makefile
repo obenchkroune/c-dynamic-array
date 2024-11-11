@@ -2,7 +2,7 @@ NAME            =   libdynarray.a
 TEST_NAME       =   test_runner
 
 CC              =   cc
-CFLAGS          =   -Wall -Werror -Wextra -pedantic -MMD -MP -I. -fsanitize=address -g3
+CFLAGS          =   -Wall -Werror -Wextra -pedantic -MMD -MP -I.
 
 BUILD_DIR       =   __build__
 SRC_DIR         =   srcs

@@ -45,7 +45,7 @@ static void* array_get(t_array* arr, size_t index)
 	return (char*)arr->array + (index * arr->element_size);
 }
 
-static void free_array(t_array* arr)
+static void destroy_array(t_array* arr)
 {
 	free(arr->array);
 	free(arr);
@@ -83,6 +83,6 @@ t_array *array_init(size_t initial_capacity, size_t element_size)
 	arr->append = array_append;
 	arr->get = array_get;
 	arr->remove = array_remove;
-	arr->free = free_array;
+	arr->destroy = destroy_array;
 	return arr;
 }

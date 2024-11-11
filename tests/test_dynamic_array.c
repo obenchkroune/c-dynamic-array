@@ -8,7 +8,7 @@ TEST test_array_create(void) {
     ASSERT_EQ(arr->size, 0);
     ASSERT_EQ(arr->capacity, ARRAY_INITIAL_CAPACITY);
     ASSERT_EQ(arr->element_size, sizeof(int));
-    arr->free(arr);
+    arr->destroy(arr);
     PASS();
 }
 
@@ -26,7 +26,7 @@ TEST test_array_push(void) {
         ASSERT_EQ(*val, values[i]);
     }
 
-    arr->free(arr);
+    arr->destroy(arr);
     PASS();
 }
 
@@ -43,7 +43,7 @@ TEST test_array_remove(void) {
     int* val = arr->get(arr, arr->size - 1);
     ASSERT_EQ(*val, 2);
 
-    arr->free(arr);
+    arr->destroy(arr);
     PASS();
 }
 
@@ -58,22 +58,22 @@ TEST test_array_get(void) {
     char* val = arr->get(arr, 1);
     ASSERT_EQ(*val, 'b');
 
-    arr->free(arr);
+    arr->destroy(arr);
     PASS();
 }
 
 TEST test_array_capacity_growth(void) {
     t_array* arr = array_init(2, sizeof(int));  // Start with small capacity
     size_t initial_capacity = arr->capacity;
-    int value = 1;
+    
 
     // Fill beyond initial capacity
     for (size_t i = 0; i < initial_capacity + 1; i++) {
-        arr->append(arr, &value);
+        arr->append(arr, &(int){1});
     }
 
     ASSERT(arr->capacity > initial_capacity);
-    arr->free(arr);
+    arr->destroy(arr);
     PASS();
 }
 

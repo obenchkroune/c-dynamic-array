@@ -5,16 +5,15 @@
 
 typedef struct s_string
 {
-	char*	data;
-	size_t	length;
+	char				*data;
+	size_t				length;
+	void				(*destroy)(struct s_string* str);
+	struct s_string*	(*copy)(const struct s_string* str);
+	struct s_string*	(*concat)(const struct s_string* str1, const struct s_string* str2);
+	int					(*compare)(const struct s_string* str1, const struct s_string* str2);
+	struct s_string*	(*substring)(const struct s_string* str, size_t start, size_t length);
 }	t_string;
 
-t_string*	string_create(const char* str);
-void		string_destroy(t_string* str);
-t_string*	string_copy(const t_string* str);
-t_string*	string_concat(const t_string* str1, const t_string* str2);
-size_t		string_length(const t_string* str);
-int			string_compare(const t_string* str1, const t_string* str2);
-t_string*	string_substring(const t_string* str, size_t start, size_t length);
+t_string*	string_init(const char* str);
 
 #endif

@@ -13,7 +13,7 @@ typedef struct s_array
 	void	(*append)(struct s_array* arr, void* element);
 	void	*(*get)(struct s_array* arr, size_t index);
 	void	(*remove)(struct s_array* arr, size_t index);
-	void	(*free)(struct s_array* arr);
+	void	(*destroy)(struct s_array* arr);
 }	t_array;
 
 t_array	*array_init(size_t initial_capacity, size_t element_size);
