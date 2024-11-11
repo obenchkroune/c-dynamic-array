@@ -5,6 +5,15 @@
 
 A simple C library implementing dynamic arrays and strings with basic operations.
 
+## Table of Contents
+
+- [Features](#-features)
+- [How to Use](#-how-to-use)
+- [Running Tests](#-running-tests)
+- [Example Usage](#-example-usage)
+- [Contributing](#-contributing)
+- [License](#-license)
+
 ## ✨ Features
 
 ### 📊 Dynamic Array
