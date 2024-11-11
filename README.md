@@ -21,6 +21,31 @@ A simple C library implementing dynamic arrays and strings with basic operations
 - String comparison and length functions
 - Automatic memory management
 
+## 📦 How to Use
+
+1. Build the library:
+
+```bash
+make
+```
+
+2. Include the headers in your program:
+
+```c
+#include "dynamic_array.h"
+#include "dynamic_string.h"
+```
+
+3. Compile your program with the library:
+
+```bash
+cc your_program.c -L. -ldynarray -I.
+```
+
+The `-L.` flag tells the compiler to look for libraries in the current directory
+The `-ldynarray` links against the library
+The `-I.` adds the current directory to include search path
+
 ## 🧪 Running Tests
 
 The library comes with a test suite built using the Greatest testing framework.
