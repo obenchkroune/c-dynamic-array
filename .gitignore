@@ -1,0 +1,7 @@
+__build__
+.cache
+compile_commands.json
+test_runner
+**/*.a
+**/*.o
+**/*.d
