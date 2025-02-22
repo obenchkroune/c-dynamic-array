@@ -3,135 +3,127 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct {
+    size_t type_size;
     size_t capacity;
     size_t used;
-    size_t type_size;
 } ArrayHeader;
 
 /**
- * @brief Initializes a new dynamic array.
+ * _array_init - Initializes a new dynamic array.
+ * @type_size: Size of the element type.
  *
- * This function allocates memory for a dynamic array along with an initial block for one element.
- * The array is configured to hold elements of the specified size.
- *
- * @param type_size The size in bytes of each element to be stored in the array.
- * @return void* A pointer to the allocated array area, or NULL if memory allocation fails.
+ * Returns a pointer to the newly allocated array memory.
  */
-void *array_init(size_t type_size);
+void *_array_init(size_t type_size);
 
 /**
- * @brief Destroys the dynamic array.
- *
- * This function frees the memory allocated for the dynamic array, including its header.
- *
- * @param arr Pointer to the dynamic array to destroy.
+ * array_init - Macro to initialize a dynamic array for a given type.
+ * Usage: array_init(T)
+ */
+#define array_init(T) _array_init(sizeof(T));
+
+/**
+ * array_destroy - Macro to free the dynamic array.
+ * Usage: array_destroy(arr)
  */
 #define array_destroy(arr) free((ArrayHeader *)arr - 1)
 
 /**
- * @brief Inserts an element into the dynamic array at a specified position.
- *
- * This function inserts a single element into the dynamic array at the given position.
- * If the specified position is greater than the current number of elements, the element is
- * appended. The function may reallocate memory if the array lacks sufficient capacity.
- *
- * @param arr Pointer to the dynamic array.
- * @param el Pointer to the element to insert.
- * @param pos The index at which to insert the element.
- * @return int Returns 0 on success or a negative value if the insertion fails.
+ * array_insert - Macro to insert an element at a specified position.
+ * Usage: array_insert(arr, el, pos)
+ * Inserts element 'el' at index 'pos', adjusting capacity if needed.
  */
-int array_insert(void *arr, void *el, size_t pos);
+#define array_insert(arr, el, pos)                                            \
+    do {                                                                      \
+        ArrayHeader *h       = (ArrayHeader *)arr - 1;                        \
+        size_t       pos_cpy = pos > h->used ? h->used : pos;                 \
+        if (h->capacity <= h->used) {                                         \
+            h->capacity = h->capacity * 2 + h->type_size;                     \
+            h = realloc(h, sizeof(ArrayHeader) + h->capacity * h->type_size); \
+            if (!h) {                                                         \
+                arr = NULL;                                                   \
+                break;                                                        \
+            }                                                                 \
+            arr = (void *)(h + 1);                                            \
+        }                                                                     \
+        memmove(arr + pos_cpy + 1, arr + pos_cpy,                             \
+                h->type_size * (h->used - pos_cpy));                          \
+        memcpy(arr + pos_cpy, &el, h->type_size);                             \
+        h->used += 1;                                                         \
+    } while (0)
 
 /**
- * @brief Inserts a range of elements into the dynamic array at a specified position.
- *
- * This function takes a contiguous block of elements defined by the range [begin, end)
- * and inserts them into the dynamic array at the given position.
- * If the insertion position is beyond the current element count, the new elements are appended.
- * Memory reallocation may occur if the array does not have sufficient capacity.
- *
- * @param arr Pointer to the dynamic array.
- * @param begin Pointer to the beginning of the block of elements to insert.
- * @param end Pointer to the end of the block of elements to insert (non-inclusive).
- * @param pos The index at which to insert the new elements.
- * @return int Returns 0 on success or -1 if reallocation fails.
+ * array_insert2 - Macro to insert a range of elements at a specified position.
+ * Usage: array_insert2(arr, begin, end, pos)
+ * Inserts elements in the range [begin, end) at index 'pos' and adjusts
+ * capacity.
  */
-int array_insert2(void *arr, void *begin, void *end, size_t pos);
+#define array_insert2(arr, begin, end, pos)                               \
+    do {                                                                  \
+        ArrayHeader *h        = (ArrayHeader *)arr - 1;                   \
+        size_t       el_count = (end - begin);                            \
+        size_t       pos_cpy  = pos > h->used ? h->used : pos;            \
+        while (h->capacity <= h->used + el_count) {                       \
+            h->capacity = h->capacity * 2 + 1;                            \
+        }                                                                 \
+        h = realloc(h, sizeof(ArrayHeader) + h->capacity * h->type_size); \
+        if (!h) {                                                         \
+            arr = NULL;                                                   \
+            break;                                                        \
+        }                                                                 \
+        arr = (void *)(h + 1);                                            \
+        memmove(arr + pos_cpy + el_count, arr + pos_cpy,                  \
+                (h->used - pos_cpy) * h->type_size);                      \
+        memcpy(arr + pos_cpy, begin, el_count * h->type_size);            \
+        h->used += el_count;                                              \
+    } while (0)
 
 /**
- * @brief Appends an element to the end of the dynamic array.
- *
- * This function adds a single element at the end of the dynamic array.
- * Memory is reallocated if necessary to accommodate the new element.
- *
- * @param arr Pointer to the dynamic array.
- * @param el Pointer to the element to be appended.
- * @return int Returns 0 on success or a negative value if the operation fails.
+ * array_push_back - Macro to insert an element at the end of the array.
+ * Usage: array_push_back(arr, el)
  */
-#define array_push_back(arr, el) array_insert(arr, el, ((ArrayHeader *)*(void **)arr - 1)->used)
+#define array_push_back(arr, el) \
+    array_insert(arr, el, ((ArrayHeader *)arr - 1)->used)
 
 /**
- * @brief Appends a range of elements to the end of the dynamic array.
- *
- * This function appends a contiguous block of elements defined by the range [begin, end)
- * to the dynamic array. Internally, the function determines the current array size
- * and uses it as the insertion point.
- * Memory reallocation is performed if needed.
- *
- * @param arr Pointer to the dynamic array.
- * @param begin Pointer to the beginning of the range of elements to append.
- * @param end Pointer to the end of the range of elements to append (non-inclusive).
- * @return int Returns 0 on success or -1 if reallocation fails.
+ * array_push_back2 - Macro to insert a range of elements at the end of the
+ * array. Usage: array_push_back2(arr, begin, end)
  */
 #define array_push_back2(arr, begin, end) \
-    array_insert2(arr, begin, end, ((ArrayHeader *)*(void **)arr - 1)->used)
+    array_insert2(arr, begin, end, ((ArrayHeader *)arr - 1)->used)
 
 /**
- * @brief Inserts an element at the beginning of the dynamic array.
- *
- * This function adds a new element at the beginning of the dynamic array.
- * All existing elements are shifted to make room for the new element.
- * Memory reallocation is performed internally if needed.
- *
- * @param arr Pointer to the dynamic array.
- * @param el Pointer to the element to insert.
- * @return int Returns 0 on success or a negative value if the insertion fails.
+ * array_push_front - Macro to insert an element at the beginning of the array.
+ * Usage: array_push_front(arr, el)
  */
 #define array_push_front(arr, el) array_insert(arr, el, 0)
 
 /**
- * @brief Inserts a range of elements at the beginning of the dynamic array.
- *
- * This function inserts a contiguous block of elements defined by the range [begin, end)
- * at the beginning of the dynamic array. Existing elements are shifted accordingly.
- * Memory reallocation may occur if the array capacity is exceeded.
- *
- * @param arr Pointer to the dynamic array.
- * @param begin Pointer to the beginning of the block of elements to insert.
- * @param end Pointer to the end of the block of elements to insert (non-inclusive).
- * @return int Returns 0 on success or -1 if reallocation fails.
+ * array_push_front2 - Macro to insert a range of elements at the beginning of
+ * the array. Usage: array_push_front2(arr, begin, end)
  */
 #define array_push_front2(arr, begin, end) array_insert2(arr, begin, end, 0)
 
 /**
- * @brief Retrieves the number of elements currently stored in the dynamic array.
- *
- * @param arr Pointer to the dynamic array.
- * @return size_t The number of elements in the dynamic array.
+ * array_size - Macro to get the number of elements in the dynamic array.
+ * Usage: array_size(arr)
  */
 #define array_size(arr) ((ArrayHeader *)arr - 1)->used
 
 /**
- * @brief Removes an element from the dynamic array at a specified index.
- *
- * This function deletes the element at the given index and shifts all subsequent elements
- * to fill the gap. If the index is out of bounds, the function does nothing.
- *
- * @param arr Pointer to the dynamic array.
- * @param idx The index of the element to remove.
+ * array_erase - Macro to remove an element at a specified index.
+ * Usage: array_erase(arr, idx)
+ * Erases the element at index 'idx' and shifts remaining elements.
  */
-void array_erase(void *arr, size_t idx);
+#define array_erase(arr, idx)                                                  \
+    do {                                                                       \
+        ArrayHeader *h = (ArrayHeader *)arr - 1;                               \
+        if (idx >= h->used) break;                                             \
+        memmove(arr + idx, arr + idx + 1, (h->used - idx - 1) * h->type_size); \
+        h->used -= 1;                                                          \
+    } while (0)
 
 #endif
