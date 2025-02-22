@@ -47,5 +47,15 @@ int main(void) {
 
     // Destroy the array.
     array_destroy(arr);
+
+    char *str = array_init(sizeof(char));
+    assert(str != NULL);
+
+    char str2[] = "Hello World";
+    array_push_back2(&str, str2, str2 + sizeof(str2) / sizeof(str2[0]));
+
+    printf("- %s\n", str2);
+
+    array_destroy(str);
     return 0;
 }

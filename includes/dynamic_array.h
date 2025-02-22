@@ -2,6 +2,13 @@
 #define DYNAMIC_ARRAY_H
 
 #include <stddef.h>
+#include <stdlib.h>
+
+typedef struct array_header {
+    size_t capacity;
+    size_t used;
+    size_t type_size;
+} ArrayHeader;
 
 /**
  * @brief Initializes a new dynamic array.
@@ -21,7 +28,7 @@ void *array_init(size_t type_size);
  *
  * @param arr Pointer to the dynamic array to destroy.
  */
-void array_destroy(void *arr);
+#define array_destroy(arr) free((ArrayHeader *)arr - 1)
 
 /**
  * @brief Inserts an element into the dynamic array at a specified position.
@@ -63,7 +70,7 @@ int array_insert2(void *arr, void *begin, void *end, size_t pos);
  * @param el Pointer to the element to be appended.
  * @return int Returns 0 on success or a negative value if the operation fails.
  */
-int array_push_back(void *arr, void *el);
+#define array_push_back(arr, el) array_insert(arr, el, ((ArrayHeader *)*(void **)arr - 1)->used)
 
 /**
  * @brief Appends a range of elements to the end of the dynamic array.
@@ -78,7 +85,8 @@ int array_push_back(void *arr, void *el);
  * @param end Pointer to the end of the range of elements to append (non-inclusive).
  * @return int Returns 0 on success or -1 if reallocation fails.
  */
-int array_push_back2(void *arr, void *begin, void *end);
+#define array_push_back2(arr, begin, end) \
+    array_insert2(arr, begin, end, ((ArrayHeader *)*(void **)arr - 1)->used)
 
 /**
  * @brief Inserts an element at the beginning of the dynamic array.
@@ -91,7 +99,7 @@ int array_push_back2(void *arr, void *begin, void *end);
  * @param el Pointer to the element to insert.
  * @return int Returns 0 on success or a negative value if the insertion fails.
  */
-int array_push_front(void *arr, void *el);
+#define array_push_front(arr, el) array_insert(arr, el, 0)
 
 /**
  * @brief Inserts a range of elements at the beginning of the dynamic array.
@@ -105,7 +113,7 @@ int array_push_front(void *arr, void *el);
  * @param end Pointer to the end of the block of elements to insert (non-inclusive).
  * @return int Returns 0 on success or -1 if reallocation fails.
  */
-int array_push_front2(void *arr, void *begin, void *end);
+#define array_push_front2(arr, begin, end) array_insert2(arr, begin, end, 0)
 
 /**
  * @brief Retrieves the number of elements currently stored in the dynamic array.
@@ -113,7 +121,7 @@ int array_push_front2(void *arr, void *begin, void *end);
  * @param arr Pointer to the dynamic array.
  * @return size_t The number of elements in the dynamic array.
  */
-size_t array_size(void *arr);
+#define array_size(arr) ((ArrayHeader *)arr - 1)->used
 
 /**
  * @brief Removes an element from the dynamic array at a specified index.
