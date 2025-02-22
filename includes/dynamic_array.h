@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-typedef struct array_header {
+typedef struct {
     size_t capacity;
     size_t used;
     size_t type_size;
