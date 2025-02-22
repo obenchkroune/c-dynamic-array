@@ -54,7 +54,11 @@ int main(void) {
     char str2[] = "Hello World";
     array_push_back2(&str, str2, str2 + sizeof(str2) / sizeof(str2[0]));
 
-    printf("- %s\n", str2);
+    char str3[] = "Universe/";
+
+    array_insert2(&str, str3, str3 + sizeof(str3) / sizeof(str3[0]) - 1, 6);
+
+    printf("- %s\n", str);
 
     array_destroy(str);
     return 0;
